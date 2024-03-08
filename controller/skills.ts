@@ -4,6 +4,7 @@ import { Category } from '../model/category';
 import { Request,Response,NextFunction } from 'express';
 import {v2 as cloudinary} from 'cloudinary';
 import { Readable } from 'stream';
+import {AppError} from '../util/AppError';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -70,10 +71,7 @@ export const addSkill = async (req:Request,res:Response,next:NextFunction)=>{
         
         const category = await Category.findById(req.params.categoryId);
         if(!category){
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Category not found',
-            });
+            return next(new AppError('category not found',404))
         }
 
         const { imageUrls, soundFile } = await uploadFiles(req.files as Record<string, Express.Multer.File[]>);
@@ -93,11 +91,7 @@ export const addSkill = async (req:Request,res:Response,next:NextFunction)=>{
         });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error);
     }
 }
 
@@ -107,10 +101,7 @@ export const editSkill = async (req: Request, res: Response, next: NextFunction)
         let skill = await Skills.findById(skillId);
 
         if (!skill) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Skill not found',
-            });
+            return next(new AppError('skill not found',404));
         }
 
         const { imageUrls, soundFile } = await uploadFiles(req.files as Record<string, Express.Multer.File[]>);
@@ -136,11 +127,7 @@ export const editSkill = async (req: Request, res: Response, next: NextFunction)
             skill,
         });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error)
     }
 };
 
@@ -154,11 +141,7 @@ export const getSkill = async (req: Request, res: Response, next: NextFunction) 
         })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error);
     }
 }
 
@@ -188,10 +171,6 @@ export const search = async (req: Request, res: Response, next: NextFunction) =>
             result:searchResult
         })
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error);
     }
 }

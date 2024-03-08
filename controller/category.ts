@@ -1,5 +1,6 @@
 import { Category } from '../model/category';
 import { Request,Response,NextFunction } from 'express';
+import { AppError } from '../util/AppError';
 
 export const createCategory = async (req:Request,res:Response,next:NextFunction)=> {
     try {
@@ -14,11 +15,7 @@ export const createCategory = async (req:Request,res:Response,next:NextFunction)
         })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error)
     }
 };
 
@@ -27,10 +24,7 @@ export const addSubCategory = async (req:Request,res:Response,next:NextFunction)
 
         const category = await Category.findById(req.params.categoryId);
         if (!category || category.isMain === false) {
-            return res.status(404).json({
-                status: 'fail',
-                message: 'Category not found or not main category',
-            });
+            return next(new AppError('Category not found or not main category',400));
         }
         
         const subCategory = await Category.create({
@@ -47,11 +41,7 @@ export const addSubCategory = async (req:Request,res:Response,next:NextFunction)
         })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error'
-        });
+        next(error);
     }
 };
 
@@ -64,11 +54,7 @@ export const getCategory = async (req:Request,res:Response,next:NextFunction)=>{
         })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error);
     }
 }
 
@@ -81,10 +67,6 @@ export const getMainCategories = async (req:Request,res:Response,next:NextFuncti
         })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error',
-        });
+        next(error);
     } 
 }
