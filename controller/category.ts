@@ -57,7 +57,7 @@ export const addSubCategory = async (req:Request,res:Response,next:NextFunction)
 
 export const getCategory = async (req:Request,res:Response,next:NextFunction)=>{
     try {
-        const category = await Category.findById(req.params.categoryId);
+        const category = await Category.findById(req.params.categoryId).populate('skills');
         res.status(200).json({
             status:'success',
             category
@@ -70,4 +70,21 @@ export const getCategory = async (req:Request,res:Response,next:NextFunction)=>{
             message: 'Internal Server Error',
         });
     }
+}
+
+export const getMainCategories = async (req:Request,res:Response,next:NextFunction)=>{
+    try {
+        const category = await Category.find({isMain:true}).populate('skills');
+        res.status(200).json({
+            status:'success',
+            category
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error',
+        });
+    } 
 }

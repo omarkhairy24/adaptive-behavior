@@ -17,12 +17,21 @@ const categorySchema = new mongoose.Schema({
         ref:'Category'
     }],
     isMain:Boolean
+},{
+    toJSON:{virtuals:true},
+    toObject:{virtuals:true}
 });
 
 categorySchema.pre<ICategory>(/^find/,function(next){
     this.populate('subCategories');
     next();
 });
+
+categorySchema.virtual('skills',{
+    ref:'Skills',
+    foreignField:'category',
+    localField:'_id'
+})
 
 const Category = mongoose.model<ICategory>('Category',categorySchema);
 

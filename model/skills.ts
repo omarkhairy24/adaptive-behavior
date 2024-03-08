@@ -24,9 +24,12 @@ const skillSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    imageUrl:String,
+    imageUrl:[String],
     videoUrl:String,
     sound:String
+},{
+    toJSON:{virtuals:true},
+    toObject:{virtuals:true}
 })
 
 const Skills = mongoose.model<ISkills>('Skills',skillSchema);
