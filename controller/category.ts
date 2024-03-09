@@ -70,3 +70,11 @@ export const getMainCategories = async (req:Request,res:Response,next:NextFuncti
         next(error);
     } 
 }
+
+export const deleteCategory = async(req:Request,res:Response,next:NextFunction)=>{
+    await Category.findByIdAndDelete(req.query.categoryId);
+    res.status(200).json({
+        status:'success',
+        message :'category deleted successfully'
+    })
+};
