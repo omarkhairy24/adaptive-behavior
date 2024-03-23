@@ -174,3 +174,25 @@ export const search = async (req: Request, res: Response, next: NextFunction) =>
         next(error);
     }
 }
+
+export const deleteManySkills = async(req:Request,res:Response,next:NextFunction)=>{
+    try {
+        const skillIdS = req.query.skillIds;
+        
+        if (!Array.isArray(skillIdS)) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'skillIds should be an array'
+            });
+        }
+
+        await Skills.deleteMany({ _id: { $in: skillIdS } });
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'skills deleted successfully'
+        });
+    } catch (error) {
+        return next(error);
+    }
+};

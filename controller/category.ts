@@ -58,6 +58,28 @@ export const getCategory = async (req:Request,res:Response,next:NextFunction)=>{
     }
 }
 
+export const editCategory = async (req:Request,res:Response,next:NextFunction)=>{
+    try {
+        let category = await Category.findById(req.params.categoryId)
+        if(!category){
+            return next(new AppError('category not found',404))
+        }
+
+        category = await Category.findByIdAndUpdate(req.params.categoryId,req.query,{
+            new:true,
+            runValidators:true
+        });
+        res.status(201).json({
+            status:'success',
+            category
+        })
+
+    } catch (error) {
+        next(error)
+    }
+
+}
+
 export const getMainCategories = async (req:Request,res:Response,next:NextFunction)=>{
     try {
         const category = await Category.find({isMain:true}).populate('skills');
@@ -77,4 +99,26 @@ export const deleteCategory = async(req:Request,res:Response,next:NextFunction)=
         status:'success',
         message :'category deleted successfully'
     })
+};
+
+export const deleteManyCategories = async(req:Request,res:Response,next:NextFunction)=>{
+    try {
+        const categoryIds = req.query.categoryIds;
+        
+        if (!Array.isArray(categoryIds)) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'categoryIds should be an array'
+            });
+        }
+
+        await Category.deleteMany({ _id: { $in: categoryIds } });
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Categories deleted successfully'
+        });
+    } catch (error) {
+        return next(error);
+    }
 };
