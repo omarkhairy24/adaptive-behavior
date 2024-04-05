@@ -22,23 +22,26 @@ export const createCategory = async (req:Request,res:Response,next:NextFunction)
 export const addSubCategory = async (req:Request,res:Response,next:NextFunction)=>{
     try {
 
-        const category = await Category.findById(req.params.categoryId);
+        let category = await Category.findById(req.params.categoryId);
         if (!category || category.isMain === false) {
             return next(new AppError('Category not found or not main category',400));
         }
-        
+
         const subCategory = await Category.create({
             name:req.query.name,
             isMain:false
         })
 
-        category?.subCategories.push(subCategory._id);
-        await category?.save();
+        category = await Category.findByIdAndUpdate(req.params.categoryId, {
+            $addToSet: { subCategories: subCategory._id }
+        }, {
+            new: true
+        });
 
         res.status(201).json({
             status:'success',
             category
-        })
+        });
 
     } catch (error) {
         next(error);
