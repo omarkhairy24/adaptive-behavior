@@ -26,7 +26,9 @@ const skillSchema = new mongoose.Schema({
     },
     imageUrl:[String],
     videoUrl:String,
-    sound:String
+    sound:String,
+    oldImages:[String],
+    oldSound:String
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}

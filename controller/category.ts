@@ -1,6 +1,7 @@
 import { Category } from '../model/category';
 import { Request,Response,NextFunction } from 'express';
 import { AppError } from '../util/AppError';
+import { Skills } from '../model/skills';
 
 export const createCategory = async (req:Request,res:Response,next:NextFunction)=> {
     try {
@@ -97,7 +98,19 @@ export const getMainCategories = async (req:Request,res:Response,next:NextFuncti
 }
 
 export const deleteCategory = async(req:Request,res:Response,next:NextFunction)=>{
-    await Category.findByIdAndDelete(req.query.categoryId);
+    let category = await Category.findById(req.query.categoryId);
+
+    //@ts-ignore
+    if (category.subCategories.length > 0) {
+        category?.subCategories.forEach(async sc =>{
+            await Skills.deleteMany({category:sc._id})
+        })
+        await Category.deleteMany({ _id: { $in: category?.subCategories } });
+    }
+
+    await Skills.deleteMany({category:category?._id});
+    await Category.findOneAndDelete({ _id: req.query.categoryId });
+
     res.status(200).json({
         status:'success',
         message :'category deleted successfully'
@@ -115,6 +128,18 @@ export const deleteManyCategories = async(req:Request,res:Response,next:NextFunc
             });
         }
 
+        const categories = await Category.find({_id:categoryIds});
+
+        categories.forEach( async c =>{
+            if (c.subCategories.length > 0){
+                c.subCategories.forEach( async sc =>{
+                    await Skills.deleteMany({category:sc._id})
+                })
+                await Category.deleteMany({_id:{ $in: c.subCategories}})
+            }
+        })
+
+        await Skills.deleteMany({category:{$in:categoryIds}});
         await Category.deleteMany({ _id: { $in: categoryIds } });
 
         return res.status(200).json({

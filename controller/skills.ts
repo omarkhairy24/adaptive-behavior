@@ -110,6 +110,8 @@ export const editSkill = async (req: Request, res: Response, next: NextFunction)
             name: req.body.name,
             description: req.body.description,
             videoUrl: req.body.videoUrl,
+            oldImages:req.body.oldImages,
+            oldSound:req.body.oldSound
         };
 
         if (imageUrls.length > 0) {
