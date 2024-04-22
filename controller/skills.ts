@@ -25,9 +25,9 @@ const uploadFiles = async (files: Record<string, Express.Multer.File[]>) => {
     const imageUrls: string[] = [];
     let soundFile;
 
-    if (!files) {
-        throw new Error('No files uploaded');
-    }
+    // if (!files) {
+    //     throw new Error('No files uploaded');
+    // }
 
     for (const fieldName in files) {
         const fieldFiles = files[fieldName];
@@ -110,16 +110,26 @@ export const editSkill = async (req: Request, res: Response, next: NextFunction)
             name: req.body.name,
             description: req.body.description,
             videoUrl: req.body.videoUrl,
-            oldImages:req.body.oldImages,
-            oldSound:req.body.oldSound
         };
 
-        if (imageUrls.length > 0) {
-            updateData.imageUrl = imageUrls;
+        const oldImageUrls: string[] = req.body.oldImages || [];
+        let allImageUrls = [...imageUrls];
+        if(Array.isArray(oldImageUrls)){
+            allImageUrls.push(...oldImageUrls)
         }
+        else{
+            allImageUrls.push(oldImageUrls)
+        }
+        updateData.imageUrl = allImageUrls;
 
         if (soundFile) {
             updateData.sound = soundFile;
+        }
+        else if(req.body.oldSound){
+            updateData.sound = skill.sound
+        }
+        else{
+            updateData.sound = null;
         }
 
         skill = await Skills.findByIdAndUpdate(skillId,updateData,{ new:true })
